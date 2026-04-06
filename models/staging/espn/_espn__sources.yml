@@ -1,0 +1,7 @@
+sources:
+  - name: nba_raw
+    description: Raw NBA game ingested from ESPN Scoreboard API
+    database: raw
+    schema: nba_raw
+    tables:
+      - name: raw_nba_scoreboard
