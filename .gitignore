@@ -1,0 +1,8 @@
+dbt_internal_packages/
+venv/
+*.csv
+target/
+dbt_packages/
+logs/
+profiles.yml
+.DS_Store
