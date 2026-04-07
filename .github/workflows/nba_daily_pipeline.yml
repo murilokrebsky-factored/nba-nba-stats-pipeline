@@ -1,0 +1,47 @@
+name: Daily NBA Data Pipeline
+
+on:
+  schedule:
+    # Runs at 09:00 UTC (roughly 4:00 AM EST) every day
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allows you to run it manually for testing
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Dependencies
+        run: |
+          pip install databricks-cli
+          pip install dbt-databricks
+
+      # STEP 1: Trigger the Databricks Ingestion Notebook
+      - name: Trigger Ingestion Notebook
+        run: |
+          databricks configure --token <<EOF
+          ${{ secrets.DATABRICKS_HOST }}
+          ${{ secrets.DATABRICKS_TOKEN }}
+          EOF
+          # Replace 'JOB_ID' with the ID of the Job you created in 'Jobs & Pipelines'
+          # Even in Free Edition, you can manually trigger a Job via API
+          databricks jobs run-now --job-id ${{ secrets.DATABRICKS_JOB_ID }}
+
+      # STEP 2: Run dbt Transformations
+      - name: Run dbt
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          # We tell dbt where to find the connection info
+          dbt deps
+          dbt seed --target prod
+          dbt run --target prod

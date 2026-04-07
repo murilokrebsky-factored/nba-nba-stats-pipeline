@@ -1,0 +1,26 @@
+nba_transformations:
+  target: dev
+  outputs:
+    dev:
+      type: databricks
+      catalog: analytics
+      schema: nba_dev
+      host: "{{ env_var('DATABRICKS_HOST') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH') }}"
+      token: "{{ env_var('DATABRICKS_HOST') }}"
+      auth_type: token
+      threads: 16
+
+
+default:
+  target: dev
+  outputs:
+    dev:
+      type: databricks
+      catalog: analytics
+      schema: dbt_mukh
+      host: "{{ env_var('DATABRICKS_HOST') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH') }}"
+      token: "{{ env_var('DATABRICKS_HOST') }}"
+      auth_type: token
+      threads: 16
