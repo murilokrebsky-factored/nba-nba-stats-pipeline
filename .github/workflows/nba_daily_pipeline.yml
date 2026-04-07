@@ -32,9 +32,13 @@ jobs:
       # STEP 1: Trigger the Python Ingestion Notebook in Databricks
       - name: Trigger Ingestion Notebook
         run: |
-          echo "Triggering Databricks Job via REST API..."
+          # We strip any existing https:// and then re-add it to be 100% safe
+          CLEAN_HOST=$(echo "${{ secrets.DATABRICKS_HOST }}" | sed -e 's|^https://||' -e 's|/$||')
+          
+          echo "Triggering Databricks Job via REST API at https://$CLEAN_HOST"
+          
           curl --request POST \
-            --url "${{ secrets.DATABRICKS_HOST }}/api/2.0/jobs/run-now" \
+            --url "https://$CLEAN_HOST/api/2.0/jobs/run-now" \
             --header "Authorization: Bearer ${{ secrets.DATABRICKS_TOKEN }}" \
             --header "Content-Type: application/json" \
             --data '{"job_id": ${{ secrets.DATABRICKS_JOB_ID }} }'
