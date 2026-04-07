@@ -3,6 +3,17 @@ with source as (
     select * from {{ source('nba_raw', 'raw_nba_scoreboard') }}
 ),
 
+deduplicated as (
+    select 
+        *,
+        -- This creates a 'rank' for every row with the same game_id
+        row_number() over (
+            partition by game_id 
+            order by ingested_at desc -- or any timestamp/ID that shows which came last
+        ) as row_num
+    from source
+),
+
 renamed as (
     select
         game_id,
@@ -17,7 +28,8 @@ renamed as (
             when cast(home_score as int) > cast(away_score as int) then home_team
             when cast(home_score as int) < cast(away_score as int) then away_team
         end as winner_name
-    from source
+    from deduplicated
+    where row_num = 1
 )
 
 select * from renamed
