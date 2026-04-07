@@ -31,10 +31,9 @@ jobs:
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
           DATABRICKS_JOB_ID: ${{ secrets.DATABRICKS_JOB_ID }}
         run: |
-          # No need for 'databricks configure' anymore! 
-          # The CLI will automatically find the HOST and TOKEN from the 'env' above.
-          echo "Triggering Databricks Job ID: ${{ secrets.DATABRICKS_JOB_ID }}"
-          databricks jobs run-now --job-id ${{ secrets.DATABRICKS_JOB_ID }}
+          echo "Triggering Databricks Job ID: $DATABRICKS_JOB_ID"
+          # We pass the host and token directly to the command
+          databricks jobs run-now --job-id $DATABRICKS_JOB_ID --host $DATABRICKS_HOST --token $DATABRICKS_TOKEN
 
       # STEP 2: Run dbt Transformations
       - name: Run dbt
