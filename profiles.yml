@@ -1,7 +1,7 @@
 nba_transformations:
-  target: dev
+  target: prod
   outputs:
-    dev:
+    prod:
       type: databricks
       catalog: analytics
       schema: nba_dev
