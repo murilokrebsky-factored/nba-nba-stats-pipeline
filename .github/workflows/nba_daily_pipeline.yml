@@ -24,15 +24,15 @@ jobs:
           pip install databricks-cli
           pip install dbt-databricks
 
-      # STEP 1: Trigger the Databricks Ingestion Notebook
+      # STEP 1: Trigger the Python Ingestion Notebook in Databricks
       - name: Trigger Ingestion Notebook
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
         run: |
-          databricks configure --token <<EOF
-          ${{ secrets.DATABRICKS_HOST }}
-          ${{ secrets.DATABRICKS_TOKEN }}
-          EOF
-          # Replace 'JOB_ID' with the ID of the Job you created in 'Jobs & Pipelines'
-          # Even in Free Edition, you can manually trigger a Job via API
+          # No need for 'databricks configure' anymore! 
+          # The CLI will automatically find the HOST and TOKEN from the 'env' above.
+          echo "Triggering Databricks Job ID: ${{ secrets.DATABRICKS_JOB_ID }}"
           databricks jobs run-now --job-id ${{ secrets.DATABRICKS_JOB_ID }}
 
       # STEP 2: Run dbt Transformations
