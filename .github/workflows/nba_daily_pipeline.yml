@@ -26,19 +26,13 @@ jobs:
 
       # STEP 1: Trigger the Python Ingestion Notebook in Databricks
       - name: Trigger Ingestion Notebook
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-          DATABRICKS_JOB_ID: ${{ secrets.DATABRICKS_JOB_ID }}
         run: |
-          # 1. Create the config file the CLI expects
-          echo "[DEFAULT]" > ~/.databrickscfg
-          echo "host = $DATABRICKS_HOST" >> ~/.databrickscfg
-          echo "token = $DATABRICKS_TOKEN" >> ~/.databrickscfg
-          
-          # 2. Run the job (the CLI will now find the host/token in the file above)
-          echo "Triggering Databricks Job ID: $DATABRICKS_JOB_ID"
-          databricks jobs run-now --job-id $DATABRICKS_JOB_ID
+          echo "Triggering Databricks Job via REST API..."
+          curl --request POST \
+            --url "${{ secrets.DATABRICKS_HOST }}/api/2.0/jobs/run-now" \
+            --header "Authorization: Bearer ${{ secrets.DATABRICKS_TOKEN }}" \
+            --header "Content-Type: application/json" \
+            --data '{"job_id": ${{ secrets.DATABRICKS_JOB_ID }} }'
 
       # STEP 2: Run dbt Transformations
       - name: Run dbt
